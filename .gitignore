@@ -4,7 +4,11 @@
 /node_modules
 /.pnp
 .pnp.js
+<<<<<<< HEAD
+/venv
+=======
 
+>>>>>>> fcb4c73 (Initialize project using Create React App)
 # testing
 /coverage
 
