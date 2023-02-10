@@ -32,5 +32,5 @@ class FactoryForm(AbstractFactoryForm):
     def create_update_tracking_form(self):
         return UpdateTrackingForm()
 
-    def create_report_tracking_form(self):
+    def create_report_package_form(self):
         return ReportPackageForm()

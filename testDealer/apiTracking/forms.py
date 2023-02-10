@@ -8,36 +8,38 @@ from datetime import datetime
 from .abstract_factory_model import FactoryModel
 
 
-class PackageForm(forms.Form):
+class PackageForm:
+    def valid_form(request):
+        try:
+            if len(request.post['description']) == 0 or len(request.post['addressOrigin']) == 0 or len(
+                    request.post['addressDestination']) == 0 or len(request.post['email']) == 0 or \
+                    request.post['size'].isnumeric() is False:
+                return False
 
-    description = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control'}), min_length=4, max_length=250, label='Descripción')
-    size = forms.FloatField(required=True, max_value=100000, min_value=0,
-                     widget=forms.NumberInput(attrs={'id': 'form_homework', 'class': 'form-control' }), label='Tamaño')
-    address_origin = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control'}), min_length=1, max_length=250, label='Dirección origen')
-    address_destination = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control'}),
-                                     min_length=4, max_length=250, label='Dirección de destino')
-    email_receiver = forms.EmailField(required=True, min_length=4, max_length=250, label='Correo', widget=forms.TextInput(attrs={'class': 'form-control'}))
+        except Package.DoesNotExist:
+            return False
+        return True
 
     @transaction.atomic()
-    def save_create(self):
+    def save_create(request):
         try:
             factory = FactoryModel()
             package = factory.create_package_model
-            package.description = self.cleaned_data['description']
-            package.size = self.cleaned_data['size']
-            package.email_receiver = self.cleaned_data['email_receiver'].strip()
+            package.description = request.post['description'].strip()
+            package.size = request.post['size']
+            package.email_receiver = request.post['email_receiver'].strip()
             package.status = 'I'
             package.save()
 
             tracking = factory.create_tracking_model()
-            tracking.address = self.cleaned_data['address_origin'].strip()
+            tracking.address = request.post['address_origin'].strip()
             tracking.date = datetime.now()
             tracking.package = package
             tracking.status = 'I'
             tracking.save()
 
             tracking = factory.create_tracking_model()
-            tracking.address = self.cleaned_data['address_destination'].strip()
+            tracking.address = request.post['address_destination'].strip()
             tracking.package = package
             tracking.status = 'E'
             tracking.save()
@@ -46,10 +48,8 @@ class PackageForm(forms.Form):
             return False
 
 
-class TrackingForm():
-
+class TrackingForm:
     def valid_form(self, id):
-        super(TrackingForm, self).clean()
         try:
             Package.objects.get(pk=id)
         except Package.DoesNotExist:
@@ -68,42 +68,38 @@ class TrackingForm():
 
 
 class UpdateTrackingForm(forms.Form):
-
-    id = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control'}), min_length=4, max_length=250, label='Identificador',
-                         error_messages={'required': 'El identificador es requerido'})
-    address = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control'}),
-                                     min_length=4, max_length=250, label='Lugar del paquete')
-    status = forms.ChoiceField(label='Estado', choices=choices(Status), widget=forms.Select(attrs={'class': 'form-control'}))
-
-    def clean(self):
-        super(UpdateTrackingForm, self).clean()
+    def valid_form(request):
         try:
-            status = self.cleaned_data['status']
-            package = Package.objects.get(pk=self.cleaned_data['id'])
+            status = request.POST['status']
+            package = Package.objects.get(pk=request.POST['id'])
             if status == 'I':
-                raise forms.ValidationError("El paquete ya no debe volver a tener el estado Iniciado" )
+                return False
+                # raise forms.ValidationError("El paquete ya no debe volver a tener el estado Iniciado")
             if package.status == 'E' and status != 'A':
-                raise forms.ValidationError("Solo se puede cambiar para el estado Aceptado cuando el paquete tiene el estado de Entregado" )
+                return False
+                # raise forms.ValidationError(
+                #    "Solo se puede cambiar para el estado Aceptado cuando el paquete tiene el estado de Entregado")
         except Package.DoesNotExist:
-            raise forms.ValidationError("No es un válido indentificador")
-        return self.cleaned_data
+            return False
+            #raise forms.ValidationError("No es un válido indentificador")
+        return True
 
     @transaction.atomic()
-    def save_update(self):
+    def save_update(request):
         try:
-            package = Package.objects.get(pk=self.cleaned_data['id'])
-            package.status = self.cleaned_data['status']
+            package = Package.objects.get(pk=request.post['id'])
+            package.status = request.post['status']
             package.save()
             factory = FactoryModel()
             tracking = factory.create_tracking_model()
-            if self.cleaned_data['status'] is 'E':
+            if request.post['status'] is 'E':
                 tracking = Tracking.objects.filter(package=package).filter(status='E').first()
                 send_user_mail(package.email_receiver, package.id)
             else:
-                tracking.address = self.cleaned_data['address']
+                tracking.address = request.post['address']
                 tracking.date = datetime.now()
                 tracking.package = package
-                tracking.status = self.cleaned_data['status']
+                tracking.status = request.post['status']
             tracking.date = datetime.now()
             tracking.save()
         except IntegrityError:
@@ -112,20 +108,15 @@ class UpdateTrackingForm(forms.Form):
 
 
 class ReportPackageForm(forms.Form):
-    date_report = forms.DateField(widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}), label='Fecha para reportar')
-
-    def clean(self):
-        super(ReportPackageForm, self).clean()
-        date_report = self.cleaned_data['date_report']
-
+    def valid_form(request):
+        date_report = request.post['date_report']
         if date_report == "":
-            self._errors['date_report'] = self.error_class(['La fecha para reportar no puede ser vacío'])
+            return False
+        return True
 
-        return self.cleaned_data
-
-    def report_trackings(self):
+    def report_trackings(request):
         try:
-            trackings = Tracking.objects.filter(date__date=self.cleaned_data['date_report'])
+            trackings = Tracking.objects.filter(date__date=request.post['date_report'])
             serializer_tracking = TrackingSerializers(trackings, many=True)
             return [serializer_tracking.data, Status]
         except:
