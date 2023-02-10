@@ -13,7 +13,7 @@ const UpdatePackage = () => {
   const [address, setAddress] = useState("");
   const [errorID, setErrorID] = useState(false);
   const [errorAddress, setErrorAddress] = useState(false);
-  const [errorStatus, setErrorStatus] = useState(false);
+  const [errorStatus, setErrorStatus] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState(null);
   const statuses = [
     { name: "Aceptado", code: "A" },
@@ -72,6 +72,8 @@ const UpdatePackage = () => {
         switchError(false);
         let data = {
           id: IDText,
+          address: address,
+          status: selectedStatus,
         };
         let response = await patch("package/update", data);
         response = JSON.stringify(response);
@@ -93,14 +95,13 @@ const UpdatePackage = () => {
         showToast("error", "Error", "Revise el formulario");
       }
     } catch (error) {
-      console.log(error);
       showToast("error", "Error", "Error en la petición");
     }
   };
 
   let classErrorID = errorID ? "p-invalid mr-2" : "";
   let classErrorAddress = errorAddress ? "p-invalid mr-2" : "";
-  let classErrorStatus = errorStatus ? "w-full md:w-14rem p-invalid mr-2" : "w-full md:w-14rem";
+  let classErrorStatus = errorStatus ? "p-invalid mr-2" : "w-full md:w-14rem";
 
   return (
     <>
@@ -168,6 +169,7 @@ const UpdatePackage = () => {
                   options={statuses}
                   optionLabel="name"
                   placeholder="Seleccione un estado"
+                  className={classErrorStatus}
                 />
               </span>
               {errorStatus && (

@@ -228,7 +228,7 @@ const RegisterPackage = () => {
                   placeholder="Dirección de destino"
                   className={classErrorAddresDestination}
                   tooltip="Dirección de destino donde se entregó el paquete"
-                  onChange={(e) => setErrorAddressDestination(e.target.value)}
+                  onChange={(e) => setAddressDestination(e.target.value)}
                 />
               </span>
               {errorAddressDestination && (
@@ -248,7 +248,7 @@ const RegisterPackage = () => {
                   placeholder="Correo"
                   className={classErrorEmail}
                   tooltip="Correo de la persona que recibe el paquete"
-                  onChange={(e) => setErrorEmail(e.target.value)}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </span>
               {errorEmail && (

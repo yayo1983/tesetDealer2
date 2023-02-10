@@ -1,6 +1,10 @@
 import axios from 'axios';
 import { addLocale } from 'primereact/api';
 
+axios.defaults.xsrfCookieName = "csrftoken"
+axios.defaults.xsrfHeaderName = "HTTP_X_CSRFTOKEN";
+// axios.defaults.withCredentials = true
+
 addLocale('es', {
     firstDayOfWeek: 1,
     dayNames: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
@@ -12,14 +16,14 @@ addLocale('es', {
     clear: 'Limpiar'
 });
 
-const endPoint = "http://localhost:8000/";
+const endPoint = "http://localhost:8000/api/";
 
 export const get = async (url, data=null) => {
     return await axios.get(endPoint+url, data ? { params: data } : null);
 };
 
-export const post = async (endpoint, data) => {
-    return await axios.post(endpoint, data);
+export const post = async (url, data) => {
+    return await axios.post(endPoint+url, data);
 };
 
 export const put = async (url, data) => {
