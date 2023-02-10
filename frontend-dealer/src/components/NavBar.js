@@ -18,17 +18,17 @@ const NavBar = () => {
               </Link>
             </li>  
             <li className="nav-item">
-              <Link className="nav-link" to="/">
+              <Link className="nav-link" to="/tracking/packages">
                 Rastrear paquete
               </Link>
             </li> 
             <li className="nav-item">
-              <Link className="nav-link" to="/">
+              <Link className="nav-link" to="/package/create">
                 Registrar paquete
               </Link>
             </li> 
             <li className="nav-item">
-              <Link className="nav-link" to="/#">
+              <Link className="nav-link" to="/package/update">
                 Actualizar paquete
               </Link>
             </li> 

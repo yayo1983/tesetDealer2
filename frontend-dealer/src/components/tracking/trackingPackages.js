@@ -4,18 +4,18 @@ import { Panel } from "primereact/panel";
 import { Button } from "primereact/button";
 import { Column } from "primereact/column";
 import { Message } from "primereact/message";
-import { Calendar } from "primereact/calendar";
 import React, { useState, useRef } from "react";
+import { InputText } from "primereact/inputtext";
 import { DataTable } from "primereact/datatable";
 
-const ReportPackages = () => {
+const TrackingPackages = () => {
   const toast = useRef(null);
-  const [date, setDate] = useState(null);
+  const [IDText, setIDText] = useState('');
   const [error, setError] = useState(false);
   const [trackings, setTrackings] = useState([]);
 
   const clearForm = (message) => {
-    setDate(null);
+    setIDText('');
     setError(false);
     showToast("success", "Success", message);
   };
@@ -29,8 +29,8 @@ const ReportPackages = () => {
     });
   };
 
-  const validateCalendarInput = () => {
-    if (date === null || date === "") {
+  const validateIDInput = () => {
+    if (IDText === null || IDText === "") {
       return false;
     }
     return true;
@@ -38,10 +38,10 @@ const ReportPackages = () => {
 
   const getTrackings = async () => {
     try {
-      if (validateCalendarInput()) {
-		    setError(false);
+      if (validateIDInput()) {
+        setError(false);
         let data = {
-          date: date,
+          id: IDText,
         };
         let response = await post("package/report", data);
         response = JSON.stringify(response);
@@ -49,12 +49,11 @@ const ReportPackages = () => {
           showToast("error", "Error", "Error en la petición");
         } else {
           clearForm("Se ha realizado la petición exitosamente");
-          setDate(null);
         }
-      }else{
-		setError(true);
-		showToast("error", "Error", "Debe seleccionar una fecha");
-	  }
+      } else {
+        setError(true);
+        showToast("error", "Error", "Debe seleccionar una fecha");
+      }
     } catch (error) {
       console.log(error);
       setTrackings([]);
@@ -70,7 +69,7 @@ const ReportPackages = () => {
       <div className="row">
         <div className="col-sm-4"></div>
         <div className="col-sm-4">
-          <h2>Reporte de paquetes </h2>
+          <h2>Estado del rastreo </h2>
         </div>
         <div className="col-sm-4"></div>
       </div>
@@ -78,21 +77,21 @@ const ReportPackages = () => {
       <div className="row">
         <div className="col-sm-4"></div>
         <div className="col-sm-6	">
-          <Panel header="Formulario de filtrado">
-            Fecha para reportar:
+          <Panel header="Formulario para rastrear paquete">
+            Identificador:
             <br />
-            <Calendar
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              placeholder="dd/mm/yyyy"
-              tooltip="Seleccione una fecha para generar el reporte"
-              readOnlyInput
-              className={classError}
-              required
-              showIcon
-              locale="es"
-            />
-            {error && <Message severity="error" text="Seleccione una fecha" />}
+            <span className="p-input-icon-left">
+              <i className="pi pi-search" />
+              <InputText
+                placeholder="Search"
+                value={IDText}
+                onChange={(e) => setIDText(e.target.value)}
+                required
+                className={classError}
+                tooltip="Identificador de paquete"
+              />
+            </span>
+            {error && <Message severity="error" text="Debe especificar un identificador de paquete" />}
             <div className="flex flex-wrap align-items-center justify-content-left">
               <br />
               <Button
@@ -110,9 +109,9 @@ const ReportPackages = () => {
         <div className="col-sm-4"></div>
         <div className="col-sm-6">
           <DataTable value={trackings} responsiveLayout="scroll">
-            <Column field="package_id" header="ID del paquete"></Column>
-            <Column field="status" header="Estado del paquete"></Column>
-            <Column field="date" header="Fecha de rastreo"></Column>
+            <Column field="package_id" header="Identificador"></Column>
+            <Column field="status" header="Estado por ubicación"></Column>
+            <Column field="date" header="Fecha"></Column>
             <Column field="address" header="Ubicación"></Column>
             <Column field="type" header="Tipo de ubicación"></Column>
           </DataTable>
@@ -123,4 +122,4 @@ const ReportPackages = () => {
   );
 };
 
-export default ReportPackages;
+export default TrackingPackages;
