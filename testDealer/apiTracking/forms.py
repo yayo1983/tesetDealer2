@@ -2,10 +2,12 @@ from django import forms
 from .models import Package, Tracking, Status
 from django.db import transaction
 from django.db import IntegrityError
-from .serializers import TrackingSerializers
+from .serializers import TrackingSerializers, PackageSerializers
 from .utils import send_user_mail, put_status_e_to_end, export_users_xls, choices
 from datetime import datetime
 from .abstract_factory_model import FactoryModel
+from django.core import serializers
+import json
 
 
 class PackageForm:
@@ -58,11 +60,16 @@ class TrackingForm:
 
     def search_packages(self, id):
         try:
-            package = Package.objects.get(pk=id)
+            package = Package.objects.filter(pk=id)[:1]
+            package[0].status = json.dumps(package[0], default=str)
             trackings = Tracking.objects.filter(package=package)
-            serializer_tracking = TrackingSerializers(trackings, many=True)
-            data = put_status_e_to_end(serializer_tracking.data)
-            return [package, data, Status]
+            serialized_package = serializers.serialize('json', package)
+            serialized_tracking = serializers.serialize('json', trackings)
+            serialized_package = json.loads(serialized_package)
+            serialized_tracking = json.loads(serialized_tracking)
+            # serializer_tracking = TrackingSerializers(trackings, many=True)
+            # data = put_status_e_to_end(serializer_tracking.data)
+            return [serialized_package, serialized_tracking, Status]
         except Package.DoesNotExist:
             return False
 

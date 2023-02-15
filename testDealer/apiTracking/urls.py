@@ -1,11 +1,10 @@
 from django.urls import path
 from .views import *
 
-app_name = 'api'
-
 urlpatterns = [
     path('', Tracking.index, name='index-package'),
-    path('user', Tracking.get_user, name='user'),
+    path('user', SingOutFunctions.get_user, name='user'),
+    path('csrf_cookie', GetCSRFToken.as_view(), name='csrf'),
     path('package/create', Tracking.create_package, name='create-package'),
     path('tracking/packages', Tracking.trackings_package, name='trackings-package'),
     path('package/update', Tracking.update_package, name='update-package'),

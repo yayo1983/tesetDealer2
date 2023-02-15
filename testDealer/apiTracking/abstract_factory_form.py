@@ -4,6 +4,9 @@ from .forms import PackageForm, TrackingForm, UpdateTrackingForm, ReportPackageF
 
 class AbstractFactoryForm(ABC):
 
+    def __init__(self):
+        super().__init__()
+
     @abstractmethod
     def create_package_form(self):
         pass

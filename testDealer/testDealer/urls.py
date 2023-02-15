@@ -19,7 +19,8 @@ from django.urls import path, include
 admin.autodiscover()
 
 urlpatterns = [
-    path('api/', include('apiTracking.urls')),
+    path('api-auth/', include('rest_framework.urls')),
+    path('trackings/', include('apiTracking.urls')),
     path('admin/', admin.site.urls),
     path('accounts/', include('django.contrib.auth.urls')),
 ]

@@ -11,4 +11,4 @@ class TrackingSerializers(serializers.ModelSerializer):
 class PackageSerializers(serializers.ModelSerializer):
     class Meta:
         model = Package
-        fields = '__all__'
+        fields = ['description']

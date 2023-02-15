@@ -8,6 +8,15 @@ def for_django(cls):
     return cls
 
 
+class StrEnum(str, Enum):
+    pass
+
+
+class AutoNameLower(StrEnum):
+    def _generate_next_value_(name, start, count, last_values):
+        return name.lower()
+
+
 @for_django
 class Status(Enum):
     A = "Aceptado"
@@ -30,7 +39,11 @@ class Package(models.Model):
         db_table = "package"
 
     def __str__(self):
-        return self.id.uuid1()
+        return self.status
+
+    @property
+    def status2(self):
+        return self.status.name
 
 
 class Tracking(models.Model):

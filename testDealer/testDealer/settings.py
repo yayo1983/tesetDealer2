@@ -27,11 +27,13 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
-CORS_ALLOWED_ORIGINS = ["http://127.0.0.1:3000", "http://127.0.0.1:8080", "http://localhost:3000", "http://localhost:8080"]
+CORS_ALLOWED_ORIGINS = ["http://localhost:3000"]
 
-CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_CREDENTIALS = False
 
-# CSRF_COOKIE_NAME = "XCSRF-TOKEN"
+CORS_ORIGIN_ALLOW_ALL = True
+
+#CSRF_COOKIE_NAME = "X-CSRFToken"
 
 # Application definition
 
@@ -133,3 +135,19 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ]
+}
+
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'myaccount@gmail.com'
+EMAIL_HOST_PASSWORD = 'my_super_password123'
+EMAIL_PORT = 587
